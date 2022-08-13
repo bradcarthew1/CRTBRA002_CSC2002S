@@ -1,7 +1,11 @@
+//Assignment_PCP1:  Serial Mean Filter
+//Course Code:      CSC2002S
+//Author:   	    Bradley Carthew 
+//Student Number:   CRTBRA002 
+//Date:             10 August 2022
+
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.concurrent.CountedCompleter;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 
@@ -23,18 +27,16 @@ public class MeanFilterSerial {
     //mean_filter() implements the mean filter sequentially
     static void mean_filter(BufferedImage img, int img_height, int img_width, int window_width){
         //initiallise the pixel and RGB values
-        int p, r = 0, b = 0, g = 0;
+        int r = 0, b = 0, g = 0;
         //initialise a two-dimensional array to store pixel values in window
         int[][] window_pixels = new int[window_width*window_width][3];
-        //initialise count and index variable to control the indeces of the square window array
-        int count = 0;
-        int index = 0;
 
         //set the border width
         int border_width = (int)Math.floor(window_width/2);
 
-        //initialise a two dimensional array to store new pixel values
-        int[][] new_pixels = new int[(img_height - border_width)*(img_width - border_width)][3];
+        //initialise count and an array to store new pixel values
+        int[] new_pixels = new int[(img_height - border_width)*(img_width - border_width)];
+        int count = 0;
 
         //start
         tic();
@@ -45,23 +47,23 @@ public class MeanFilterSerial {
                 for (int h = 0; h < window_width; h++){
                     for (int w = 0; w < window_width; w++){
                         //get the pixel value
-                        p = img.getRGB(w + j - border_width, h + i - border_width);
+                        int p = img.getRGB(w + j - border_width, h + i - border_width);
         
                         //extract the RGB values from thei pixel value
                         r = (p>>16) & 0xff;
                         g = (p>>8) & 0xff;
                         b = p & 0xff;
+
+                        int index = window_width*h + w;
         
                         //populate the square window array with RGB values
-                        window_pixels[count][0] = r;
-                        window_pixels[count][1] = g;
-                        window_pixels[count][2] = b;
-                        count += 1;
+                        window_pixels[index][0] = r;
+                        window_pixels[index][1] = g;
+                        window_pixels[index][2] = b;
                     }//window width loop ends here
                 }//window height loop ends here
 
-                //set count to 0, and initialize sum and mean variables for RGB values
-                count = 0;
+                //initialize sum and mean variables for RGB values
                 int r_sum = 0, g_sum = 0, b_sum = 0;
                 int r_mean = 0, b_mean = 0, g_mean = 0;
 
@@ -76,26 +78,23 @@ public class MeanFilterSerial {
                 }
 
                 //populate new array with new pixel values
-                new_pixels[index][0] = r_mean;
-                new_pixels[index][1] = g_mean;
-                new_pixels[index][2] = b_mean;
-                index += 1;
-                
+                int new_p = (r_mean<<16) | (g_mean<<8) | b_mean;
+                new_pixels[count] = new_p;
+                count += 1;
             }//image width loop ends here
         }//image height loop ends here
 
-        //end
+        //end of filter computation
         toc();
         System.out.println("Runtime for mean filter with window of size " + Integer.toString(window_width) + "x" + Integer.toString(window_width) 
         + ": " + runTime/1000.0f + " seconds");
 
-        index = 0;
+        count = 0;
         //set the pixel value to the mean of the RGB values
         for (int i = border_width; i < (img_height - border_width); i++){
             for (int j = border_width; j < (img_width - border_width); j++){
-                p = (new_pixels[index][0]<<16) | (new_pixels[index][1]<<8) | new_pixels[index][2];
-                img.setRGB(j, i, p);
-                index += 1;
+                img.setRGB(j, i, new_pixels[count]);
+                count += 1;
             } //image width loop ends here
         }//image height loop ends here
 
