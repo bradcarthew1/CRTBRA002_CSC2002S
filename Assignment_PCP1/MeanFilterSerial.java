@@ -124,21 +124,17 @@ public class MeanFilterSerial {
         int img_width = img.getWidth();
         int img_height = img.getHeight();
 
-        //initialise the window width
-        int window_width = 0;
-
         //set the window width and check if command-line input is an odd number
         if (Integer.parseInt(args[1]) % 2 == 0){
             System.out.println("Error: The window size must be an odd integer value.");
             System.exit(0);
         }
         else{
-            window_width = Integer.parseInt(args[1]);
-        }
-        
+            int window_width = Integer.parseInt(args[1]);
 
-        //execute the mean filter function
-        mean_filter(img, img_height, img_width, window_width);
+            //execute the mean filter function
+            mean_filter(img, img_height, img_width, window_width);
+        }
         
         //write the new pixel values to the desired output file
         try{

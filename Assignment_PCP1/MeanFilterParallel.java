@@ -5,60 +5,67 @@
 //Date:             12 August 2022
 
 import java.io.File;
-import java.util.Arrays;
 import java.io.IOException;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ForkJoinTask;
-import java.util.concurrent.RecursiveTask;
 
 public class MeanFilterParallel {
+    //initialise timing variables
+    static long startTime = 0;
+	static long runTime = 0;
+
+    //start timer
+	private static void tic(){
+		startTime = System.currentTimeMillis();
+	}
+
+    //end timer and calculate runtime
+	private static void toc(){
+		runTime = (System.currentTimeMillis() - startTime) ; 
+	}
+
     static final ForkJoinPool fjPool = new ForkJoinPool();
 
-    static sum(int[][] arr){
-        return fjPool.invoke(new medianArray(arr,0,arr.length));
+    static int[] sum(int[] pixels){
+        return fjPool.invoke(new RGBSum(pixels, 0, pixels.length));
     }
-
-    //mean_filter() implements the mean filter in parallel 
-    static void mean_filter(BufferedImage img, int img_height, int img_width, int window_width){
-        //initiallise the pixel and RGB values
-        int p, r = 0, b = 0, g = 0;
-        //initialise a two-dimensional array to store pixel values in window
-        int[][] window_pixels = new int[window_width*window_width][3];
-        //initialise count to control the indeces of the square window array
+	
+	static int[] mean_filter(BufferedImage img, int window_width, int border_width, int img_height, int img_width){
+        //initialise an array to store pixel values in window
+        int[] window_pixels = new int[window_width*window_width];
         int count = 0;
 
-        //set the border width
-        int border_width = (int)Math.floor(window_width/2);
+        //initialise an array to store new pixel values
+        int[] new_pixels = new int[(img_height - border_width)*(img_width - border_width)];
 
-        //implementation of the parallel mean filter
+        tic(); //start timer
+
         for (int i = border_width; i < (img_height - border_width); i++){
             for (int j = border_width; j < (img_width - border_width); j++){
                 for (int h = 0; h < window_width; h++){
                     for (int w = 0; w < window_width; w++){
                         //get the pixel value
-                        p = img.getRGB(w + j - border_width, h + i - border_width);
-        
-                        //extract the RGB values from thei pixel value
-                        r = (p>>16) & 0xff;
-                        g = (p>>8) & 0xff;
-                        b = p & 0xff;
-        
-                        //populate the square window array with RGB values
-                        window_pixels[count][0] = r;
-                        window_pixels[count][1] = g;
-                        window_pixels[count][2] = b;
-                        count += 1;
+                        int p = img.getRGB(w + j - border_width, h + i - border_width);
+                        window_pixels[w + h*window_width] = p;
                     }//window width loop ends here
                 }//window height loop ends here
 
-                //calculate the median using fork-join
-                int[] median_values = median(window_pixels);
-        
-            }//image width loop ends here
-        }//image height loop ends here
-    }
+                int[] sum = sum(window_pixels);
+
+                //populate new array with new pixel values
+                int new_p = (sum[0]<<16) | (sum[1]<<8) | sum[2];
+                new_pixels[count] = new_p;
+                count += 1;
+            }
+        }
+
+        toc(); //end time and calculate runtime
+        System.out.println("Runtime for mean filter with window of size " + Integer.toString(window_width) + "x" + Integer.toString(window_width) 
+        + ": " + runTime/1000.0f + " seconds");
+
+        return new_pixels;
+	}
     
     public static void main(String args[])throws IOException{
         //initialise file and image variables
@@ -79,14 +86,11 @@ public class MeanFilterParallel {
           System.out.println(e);
         }
 
-        //get number of threads from system
-        //int noThreads = Runtime.getRuntime().availableProcessors();
-
         //determinine the width and height of image
         int img_width = img.getWidth();
         int img_height = img.getHeight();
 
-        //initialise the window width
+        //initialise window width
         int window_width = 0;
 
         //set the window width and check if command-line input is an odd number
@@ -98,15 +102,20 @@ public class MeanFilterParallel {
             window_width = Integer.parseInt(args[1]);
         }
 
-        //execute the mean filter function
-        mean_filter(img, img_height, img_width, window_width);
-        
-        //write the new pixel values to the desired output file
-        try{
-            f = new File(args[2]);
-            ImageIO.write(img, "jpg", f);
-        }catch(IOException e){
-            System.out.println(e);
-        }
+        //set the border width
+        int border_width = (int)Math.floor(window_width/2);
+
+        //invoke the mean_filter() method and initialise an array for the new pixel values
+        int[] new_pixels = new int[(img_height - border_width)*(img_width - border_width)];
+        new_pixels = mean_filter(img, window_width, border_width, img_height, img_width);
+
+        int count = 0;
+        //set the pixel value to the mean of the RGB values
+        for (int i = border_width; i < (img_height - border_width); i++){
+            for (int j = border_width; j < (img_width - border_width); j++){
+                img.setRGB(j, i, new_pixels[count]);
+                count += 1;
+            } //image width loop ends here
+        }//image height loop ends here
     }
 }
