@@ -131,7 +131,7 @@ public class MedianFilterSerial {
 
         //end
         toc();
-        System.out.println("Runtime for median filter with window of size " + Integer.toString(window_width) + "x" + Integer.toString(window_width) 
+        System.out.println("Runtime for serial median filter with window of size " + Integer.toString(window_width) + "x" + Integer.toString(window_width) 
         + ": " + runTime/1000.0f + " seconds");
 
         count = 0;
