@@ -1,0 +1,35 @@
+commit 7263838b15ebb157be08cdf4c79f12cfac10350b
+Author: Bradley Carthew <bradleycarthew@gmail.com>
+Date:   Sun Aug 14 21:36:09 2022 +0200
+
+    added all assignment files
+
+commit 264e236815e8432ba67699164fbc505afed5c7b1
+Author: Bradley Carthew <bradleycarthew@gmail.com>
+Date:   Sun Aug 14 12:02:11 2022 +0200
+
+    added new parallel mean filter
+
+commit d4e21eb21734252b1b30d1fbe276f9aa57f40fcd
+Author: Bradley Carthew <bradleycarthew@gmail.com>
+Date:   Sat Aug 13 15:46:53 2022 +0200
+
+    added modified series filter files
+
+commit 4891c7669383bd93260d3e57603760fdead7702c
+Author: Bradley Carthew <bradleycarthew@gmail.com>
+Date:   Thu Aug 11 18:48:04 2022 +0200
+
+    added serial version of filters
+
+commit 11072355ad56105500f517ccbf9fe19546795bca
+Author: Bradley Carthew <bradleycarthew@gmail.com>
+Date:   Tue Aug 9 11:54:49 2022 +0200
+
+    added report document
+
+commit 7c6c91ab968e1c08a6e6934cb38564841cce1349
+Author: Bradley Carthew <bradleycarthew@gmail.com>
+Date:   Mon Aug 8 20:49:04 2022 +0200
+
+    added Assignment folder
